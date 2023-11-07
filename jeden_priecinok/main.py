@@ -17,8 +17,6 @@ import queue
 
 
 def main():
-
-
     with open("gesture_model.pkl", "rb") as f:
         model_data = pickle.load(f)
     clf = model_data['classifier']
@@ -41,11 +39,10 @@ def main():
                 print(ave)
                 print('retry...')
 
-        # skip first 300 frames
         #tello.takeoff()
         frame_skip = 300
 
-
+        call_repeatedly(1, hand_landmarks, scaler, clf)
         while True:
             key = cv2.waitKey(1)
             for frame in container.decode(video=0):
@@ -61,25 +58,16 @@ def main():
                     break
 
                 if key == ord("s") and not gesture_recognition_started:
-                    call_repeatedly(1, hand_landmarks, scaler, clf, frame_cv)
-                    print("ok ide to")
-
-                    # call_repeatedly(1, control, tello, prediction, frame_cv)
-
                     gesture_recognition_started = True
 
                 if gesture_recognition_started:
                     current_prediction = hand_landmarks(scaler, clf, frame_cv)
                     if current_prediction is not None:
-
                         cv2.putText(frame_cv, current_prediction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                        print(f"predikcia{current_prediction}")
+                        print(f"Prediction: {current_prediction}")
+                        #control(tello, current_prediction, frame_cv)
 
 
-
-
-            if key == ord("q"):
-                break
         tello.land()
 
 

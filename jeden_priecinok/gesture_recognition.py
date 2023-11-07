@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 from threading import Thread, Event
 import time
-# import queue
+import queue
 mp_hands = mp.solutions.hands
 
 
@@ -25,7 +25,6 @@ def call_repeatedly(interval, func, *args):
     Thread(target=loop).start()
 
 def hand_landmarks(scaler, clf, frame_cv):
-    global prediction
     prediction = '0'
     frame_rgb = cv2.cvtColor(frame_cv, cv2.COLOR_BGR2RGB)  # Convert to RGB
     results = hands.process(frame_rgb)
@@ -37,7 +36,7 @@ def hand_landmarks(scaler, clf, frame_cv):
         print(f"Prediction: {prediction}")  # Debugging line to print prediction
     else:
         print("No hand landmarks detected.")
-
+    return prediction
 
 # MOVE TELLO
 
