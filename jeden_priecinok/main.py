@@ -42,14 +42,14 @@ def main():
         #tello.takeoff()
         frame_skip = 300
 
-        call_repeatedly(1, hand_landmarks, scaler, clf)
+
         while True:
             key = cv2.waitKey(1)
             for frame in container.decode(video=0):
                 if 0 < frame_skip:
                     frame_skip = frame_skip - 1
                     continue
-
+                global frame_cv
                 frame_cv = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
                 cv2.imshow('Original', frame_cv)
 
@@ -59,6 +59,7 @@ def main():
 
                 if key == ord("s") and not gesture_recognition_started:
                     gesture_recognition_started = True
+                    call_repeatedly(1, hand_landmarks, scaler, clf)
 
                 if gesture_recognition_started:
                     current_prediction = hand_landmarks(scaler, clf, frame_cv)
