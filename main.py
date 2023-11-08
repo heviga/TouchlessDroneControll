@@ -61,6 +61,43 @@ def call_repeatedly(interval, func, *args):
             func(*args)  # Pass the scaler and classifier to the function
             stop_event.wait(interval)
     Thread(target=loop).start()
+
+
+def control(tello):
+    global prediction
+    tello.palm_land
+    # global prediction
+    if prediction:
+        if prediction == 'fist':
+            tello.forward(30)
+            time.sleep(1)
+            tello.forward(0)
+        elif prediction == 'call me':
+            tello.backward(30)
+            time.sleep(1)
+            tello.backward(0)
+        elif prediction == 'stop':
+            time.sleep(5)
+            tello.backward(0)
+        elif prediction == 'rock':
+            tello.flip_forward()
+        elif prediction == 'live long':
+            tello.flip_back()
+        elif prediction == 'thumbs up':
+            tello.up(30)
+            time.sleep(1)
+            tello.up(0)
+        elif prediction == 'thumbs down':
+            tello.down(30)
+            time.sleep(1)
+            tello.down(0)
+        elif prediction == 'peace':
+            cv2.imwrite("picture.png", frame_cv)
+
+
+
+
+
 def main():
     # Load the gesture recognizer model
     model = tf.keras.models.load_model('mp_hand_gesture')
