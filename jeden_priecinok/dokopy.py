@@ -20,7 +20,6 @@ import time
 import queue
 mp_hands = mp.solutions.hands
 
-
 hands = mp_hands.Hands(max_num_hands=1)
 # Load the trained model
 with open("gesture_model.pkl", "rb") as f:
@@ -29,7 +28,7 @@ with open("gesture_model.pkl", "rb") as f:
     scaler = model_data['scaler']
 
 stop_event = Event()
-
+frame_cv = []
 def call_repeatedly(interval, func, *args):
     def loop():
         while not stop_event.is_set():
@@ -38,9 +37,11 @@ def call_repeatedly(interval, func, *args):
     Thread(target=loop).start()
 
 def hand_landmarks(scaler, clf):
-    global prediction, frame_cv
+    global frame_cv, prediction
+    print("I am here")
     prediction = '0'
-    frame_rgb = cv2.cvtColor(frame_cv, cv2.COLOR_BGR2RGB)  # Convert to RGB
+    frame = frame_cv
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert to RGB
     results = hands.process(frame_rgb)
 
     if results.multi_hand_landmarks:
@@ -51,9 +52,11 @@ def hand_landmarks(scaler, clf):
     else:
         print("No hand landmarks detected.")
 
+
 # MOVE TELLO
 
-def control(tello, prediction, frame_cv):
+def control(tello):
+    global prediction
 
     # global prediction
     if prediction:
@@ -93,6 +96,7 @@ prediction = '0'
 
 
 def main():
+    global frame_cv, prediction
     with open("gesture_model.pkl", "rb") as f:
         model_data = pickle.load(f)
     clf = model_data['classifier']
@@ -129,7 +133,7 @@ def main():
                 frame_cv = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
 
                 if key == ord("q"):
-                    tello.land()
+                    #tello.land()
                     break
 
                 if key == ord("s") and not gesture_recognition_started:
@@ -137,13 +141,13 @@ def main():
                     call_repeatedly(1, hand_landmarks, scaler, clf)
 
                 if gesture_recognition_started:
-                    current_prediction = hand_landmarks(scaler, clf, frame_cv)
-                    if current_prediction is not None:
-                        cv2.putText(frame_cv, current_prediction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                        print(f"Prediction: {current_prediction}")
+                    #prediction = hand_landmarks(scaler, clf, frame_cv)
+                    cv2.putText(frame_cv, prediction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    #print(f"Prediction: {prediction}")
                         #control(tello, current_prediction, frame_cv)
                 cv2.imshow('Original', frame_cv)
-
+            if key == ord("q"):
+                break
         tello.land()
 
 
